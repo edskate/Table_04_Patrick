@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Controle Mensal de Ensaios – Patrick</title>
+<title>Controle Mensal de Ensaios – Patrick | Fevereiro 2026</title>
 
 <style>
 body{
@@ -38,6 +38,22 @@ th{
 .trabalho{ font-weight:bold; }
 .folga{ color:#777; }
 
+/* 🔴 ALERTA PISCANTE */
+@keyframes piscar {
+  0%   { background:#ffe5e5; }
+  50%  { background:#ff9b9b; }
+  100% { background:#ffe5e5; }
+}
+
+.alerta-piscante{
+  animation: piscar 1s infinite;
+  border-left:6px solid #c40000;
+}
+
+.alerta-piscante strong{
+  color:#b30000;
+}
+
 #relatorio{
   margin-top:15px;
   padding:10px;
@@ -52,7 +68,7 @@ input[type="number"]{ width:70px; }
 
 <body>
 
-<h2 id="titulo"></h2>
+<h2>CONTROLE MENSAL – PATRICK • FEVEREIRO 2026</h2>
 
 <table>
 <thead>
@@ -73,17 +89,20 @@ input[type="number"]{ width:70px; }
 <script>
 const dias = ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
 
-// 👉 MÊS ANTERIOR
-const hoje = new Date();
-let mes = hoje.getMonth() - 1;
-let ano = hoje.getFullYear();
-if(mes < 0){ mes = 11; ano--; }
+// 🔒 MÊS FIXO
+const ano = 2026;
+const mes = 1; // Fevereiro
 
-const storageKey = `controle_patrick_${ano}_${mes}`;
+// Dias fixos de trabalho
+const diasTrabalhoFixos = ["Segunda","Terça","Sexta"];
 
-document.getElementById("titulo").innerText =
-  `Controle Mensal – Patrick • ${new Date(ano, mes)
-    .toLocaleString("pt-BR",{month:"long"}).toUpperCase()} ${ano}`;
+// Data REAL (tempo real)
+const agora = new Date();
+const hojeDia = agora.getDate();
+const hojeMes = agora.getMonth();
+const hojeAno = agora.getFullYear();
+
+const storageKey = `controle_patrick_2026_02_piscante`;
 
 const dados = JSON.parse(localStorage.getItem(storageKey)) || {};
 const tbody = document.getElementById("tabela");
@@ -106,7 +125,7 @@ function atualizarRelatorio(){
   });
 
   relatorio.innerHTML = `
-    <strong>📊 RELATÓRIO DO MÊS – PATRICK</strong><br>
+    <strong>📊 RELATÓRIO – FEVEREIRO 2026</strong><br>
     ✅ Dias de Trabalho: <b>${trabalho}</b><br>
     💤 Dias de Folga: <b>${folga}</b><br>
     ⏱️ Total de Horas de Ensaio: <b>${horas}</b>
@@ -133,14 +152,25 @@ for(let d=1; d<=ultimoDia; d++){
 
   const tr = document.createElement("tr");
 
+  // cores normais
   if(nomeDia === "Quarta") tr.classList.add("quarta");
   if(nomeDia === "Quinta") tr.classList.add("quinta");
   if(nomeDia === "Sábado") tr.classList.add("sabado");
   if(nomeDia === "Domingo") tr.classList.add("domingo");
 
+  // 🔴 ALERTA PISCANTE SOMENTE NO DIA ATUAL + DIA DE TRABALHO
+  if(
+    d === hojeDia &&
+    mes === hojeMes &&
+    ano === hojeAno &&
+    diasTrabalhoFixos.includes(nomeDia)
+  ){
+    tr.classList.add("alerta-piscante");
+  }
+
   tr.innerHTML = `
-    <td>${nomeDia}</td>
-    <td>${String(d).padStart(2,"0")}/${String(mes+1).padStart(2,"0")}/${ano}</td>
+    <td><strong>${nomeDia}</strong></td>
+    <td>${String(d).padStart(2,"0")}/02/2026</td>
     <td>
       ${
         ["Quarta","Quinta","Sábado","Domingo"].includes(nomeDia)
@@ -148,7 +178,7 @@ for(let d=1; d<=ultimoDia; d++){
             <option ${dados[d].status=="Folga"?"selected":""}>Folga</option>
             <option ${dados[d].status=="Trabalho"?"selected":""}>Trabalho</option>
           </select>`
-        : `<span class="trabalho">Trabalho</span>`
+        : `<span class="trabalho">TRABALHO</span>`
       }
     </td>
     <td>
